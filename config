@@ -1,0 +1,7 @@
+latexmk=1
+pre_compile=pre_hook
+
+pre_hook(){
+  bibtool -s -d bib/*.bib -o out/auto-merge.bib
+  pdf2eps fig/*
+}

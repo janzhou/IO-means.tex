@@ -1,0 +1,45 @@
+\section{Problem Definition}
+
+\subsection{Prefetching as Prediction of external I/O} Challenges:
+
+\begin{itemize}
+\item The address space of an I/O stream is extremely sparse.
+\item Interference exists between multiple concurrent I/O stream.
+\end{itemize}
+
+\subsection{I/O prefetch as sequence prediction problem}
+
+Methods used in Memory Access Pattern Learning may not work.
+
+\subsubsection{Analysis results for $\delta$}
+
+Frequently Appeared Deltas: Highly skewed
+
+\subsubsection{Analysis results for $classification$}
+
+Clustering: High transit rate for External I/O (Using K-means)
+
+One or more application doing external I/O concurrently.
+
+\subsection{Recurrent Sequence to Sequence Learning}
+
+\subsubsection{Embedding LSTM}
+
+\subsubsection{Clustering LSTM}
+
+Address clustering.
+
+\subsubsection{Multi-layer LSTM}
+
+We first predict the partition (RNN Layer 1) or maybe stream clustering rather than address clustering.
+
+We then predict with in the partition (RNN Layer 2).
+
+\subsubsection{Disjoint Classification}
+
+Convert 1 dimensional sequence to 2 dimensional access jumps
+
+Class disjoint space (jumps) using 2 dimensional k-means
+
+RNN in each class.
+

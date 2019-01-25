@@ -1,0 +1,118 @@
+\section{Introduction}
+
+Because secondary storage is physically farthest away from CPU in modern memory hierarchy
+and shared by many concurrent processes,
+I/O accesses bear less locality and is more complexity than that of memory workloads~\cite{yang1992novel}.
+Much research has been done to employ prefetch as one weapon to bridge the speed gap between memory and storage.
+However, storage side prefetching mainly optimized for relatively simple I/O patterns.
+DiskSeen~\cite{ding2007diskseen} adopts sequential prefetching for disk I/O.
+Competitive prefetching~\cite{li2007competitive} optimizes the sequential prefetching for multiple concurrent I/O stream.
+In order to optimize the workloads that are not sequential,
+Chen et. al.~\cite{chen2008hiding} perform pre-execution and keep a record of the request for prefetching.
+Signature-based parallel prefetching~\cite{byna2008parallel} calculates the signature of request sequence to match future request sequence. %signature-based prefetching.
+Lots of researchers develop solutions to learn patterns for
+specific workloads that are characterized by stable and repeatable patterns.
+For example, Anwar et. al.~\cite{anwar2018improving} seek to perform
+prefetching specifically for docker applications. % simpler patterns
+Xu et. al.~\cite{xu2017malware} learn access patterns to detect
+the malware applications.
+Even more researchers are using deep learning~\cite{hashemi2018learning} to implement CPU prefetch,
+how to use the deep learning for I/O architecture remains an under-explored research area.
+There are challenges to predict future I/Os for the storage systems.
+
+
+First, it is common for thousands of applications running concurrently
+on a shared cluster~\cite{stokely2012projecting}.
+Each application executes its own specific mix of jobs.
+The workload features are driven by many short jobs
+that demand quick scheduling decisions.
+This could result in a wide variety of aggregated resource demands and
+request arrival patterns with high variation over short time intervals~\cite{reiss2012heterogeneity}.
+Due to the high degree of both heterogeneity and dynamism in the workloads,
+it is difficult to achieve accurate prediction of I/O requests and resource demands.
+Traditional clustering, classification and prediction techniques
+are not suitable for the resource allocation of storage systems~\cite{ray2017high}.
+The first challenge is how to identify the workload in real time from mixed I/O streams,
+predict the dynamic resource allocation and usage in both long and short time periods,
+and make rapid scheduling decision.
+Because thousands of applications are sharing one single storage infrastructure,
+the external I/O are far more complex than the memory access.
+I/O sequence from multiple applications are mixed into a single consolidated I/O sequence,
+resulting in many chaos and one time access patterns.
+Because of this, levering advanced machine learning algorithms for I/O prediction and prefetching
+are becoming important for next generate storage systems.
+RNN models are effective in analysing and predicting the sequence datasets.
+Current RNN models assume explicit patterns exists in input sequence.
+It exploit such patterns from the training datasets and deduce inference models.
+However, LBA sequence in block level I/O traces do not simply carry such info.
+
+
+
+\improvement{Why not k-means + RNN?}
+Second, the address space
+Learning memory access patterns~\cite{hashemi2018learning, peled2018towards}.
+There are multiple challenges of isolating the sub I/O sequences.
+First, the address of the sub I/O sequences may not have simple pattern, e.g. sequential.
+Second, multiple concurrent workloads may mix their request in one I/O stream and result in many one-time-access patterns.
+To solve these challenges, one simple solution is to let the application submit it's identity, such file id or process id, to the storage system.
+However, we may access multiple files or process multiple transactions in one application.
+In this case, passing all the ids to the storage layer will becoming infeasible.
+Because of this, we believe a better way is to let the storage system learn from the workloads.
+
+External storage is the last level of storage in the computer architecture.
+We expect that most of the temporal and spacial locality have been captured by the upper level CPU cache or DRAM buffers.
+The I/Os that exist in the external storage will have less locality.
+LRU and LFU cache algorithms can only capture a limited amount (20\%<) of locality in the block level I/Os.
+We have applied RNN models to process the chaotic I/O sequence.
+We find that the patterns learned from the training datasets can not be used effectively to predict the I/Os in the testing datasets.
+As a result, it is critical to discover sub I/O sequence first before applying RNN models.
+The \emph{sub I/O sequence} can represent the addresses that are more likely to be accessed together in a time window.
+We propose to combine a set of different machine learning algorithms to analysis and predict the I/O requests.
+In particular, we first use a customized sequence isolation algorithm to classify the sub I/O sequence based on the I/O history.
+We then use RNN models to exploit the hidden pattern in the sub I/O sequence.
+We believe that the machine learning services and libraries will become more conveniently to be used and widely equipped in the near future.
+A well trained I/O prefetching model can be directly ported to a new system running similar applications.
+We will split this track into the following tasks.
+
+\improvement{because of what behavior of I/O workloads}
+
+Sequence isolation is one of the sequence classification problem.
+However, one of the most important question is which feature we can extract from the I/O sequence to be used for classification.
+To reduce the size of the neural network, Google propose to do k-means classification for the addresses,
+before submitting the I/O sequence to a set of RNN model\cite{hashemi2018learning}.
+However, classification methods used in memory access pattern have strong assumptions and will not work for external I/O.
+First, frequently appeared deltas are too highly skewed in the external I/O.
+Second, because of mix nature of the I/O sequence, the the transit rate between k-means clusters is high for external I/O.
+We propose a more general solution to find the data relationship to those data in last slide time window.
+We aim to discover the hidden relation being buried in address domain,
+and project our trace records to a new multi feature domain by considering time series info.
+The convergence algorithm is being developed to implement a projection protocol
+taking both address and time series info of data into consideration.
+
+Moore's law reaches its end in the CPUs,
+while the ever-popular general-purpose GPUs become default setup
+instead of acting as an accelerator only in the market.
+New domain specific architectures, e.g. TPU, have been developed to speed up the deep learning algorithms.
+Even modern CPUs are augmented with support for SIMD (i.e., single instruction multiple data) instructions.
+This brings up an untapped opportunity: leveraging these big compute resources
+to embrace custom machine learning algorithms to improve the I/O architecture.
+There are several technical challenges in developing such a learned storage system:
+
+Two most representative machine learning techniques,
+Recurrent Neural Network (RNN in brief) for natural language processing~\cite{graves2013generating,cho2014learning,li2015constructing}
+and Convolutional Neural Network (CNN in brief) for image classification~\cite{lecun1995convolutional,karpathy2014large,kim2014convolutional,abdel2014convolutional,krizhevsky2012imagenet},
+have been well recognized by the public community.
+In natural language processing, the vocabulary size is
+typically set to a number ranged from $10^4$ to $10^5$~\cite{Britz:2017}.
+The ImageNet~\cite{deng2009imagenet}, one of the most popular image datasets, has $32,326$ image categorizes.
+Both DL models work well at a scale with hundreds of thousands of dimensions.
+However, the scale of dimension for storage systems is at an extreme scale,
+often as large as tera-scale and peta-scale.
+For example, given a single 1TB SSD storage device,
+there are more than $1.3*10^8$ logical pages,
+not talking about the large-scale storage systems.
+Due to the large capacity of the external storage,
+the corresponding neural network must be wide in order to be effectively trained
+and used to make an accurate prediction.
+The I/O data access pattern cannot be the effectively learned
+by existing CNN or RNN models.
