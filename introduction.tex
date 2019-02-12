@@ -46,9 +46,7 @@ Current RNN models assume explicit patterns exists in input sequence.
 It exploit such patterns from the training datasets and deduce inference models.
 However, LBA sequence in block level I/O traces do not simply carry such info.
 
-
-
-\improvement{Why not k-means + RNN?}
+\improvement{Why not k-means?}
 Second, the address space
 Learning memory access patterns~\cite{hashemi2018learning, peled2018towards}.
 There are multiple challenges of isolating the sub I/O sequences.
@@ -61,11 +59,14 @@ Because of this, we believe a better way is to let the storage system learn from
 
 External storage is the last level of storage in the computer architecture.
 We expect that most of the temporal and spacial locality have been captured by the upper level CPU cache or DRAM buffers.
-The I/Os that exist in the external storage will have less locality.
-LRU and LFU cache algorithms can only capture a limited amount (20\%<) of locality in the block level I/Os.
-We have applied RNN models to process the chaotic I/O sequence.
-We find that the patterns learned from the training datasets can not be used effectively to predict the I/Os in the testing datasets.
-As a result, it is critical to discover sub I/O sequence first before applying RNN models.
+The I/Os that exist in the external storage will have less locality,
+which cannot be effective dealed by LRU or LFU algorithms.
+The chaotic I/O sequence also challenges advanced machine learning algorithms
+from uncovering the hidden heuristics in the workloads.
+Because of the dymanic concurrency in the worklaods,
+I/O patterns learned from the training datasets
+cannot be used effectively to predict the I/Os.
+As a result, it is critical to uncover sub I/O streams from 
 The \emph{sub I/O sequence} can represent the addresses that are more likely to be accessed together in a time window.
 We propose to combine a set of different machine learning algorithms to analysis and predict the I/O requests.
 In particular, we first use a customized sequence isolation algorithm to classify the sub I/O sequence based on the I/O history.
@@ -74,7 +75,7 @@ We believe that the machine learning services and libraries will become more con
 A well trained I/O prefetching model can be directly ported to a new system running similar applications.
 We will split this track into the following tasks.
 
-\improvement{because of what behavior of I/O workloads}
+\subsection{Stream Isolation as Sequence Classification}
 
 Sequence isolation is one of the sequence classification problem.
 However, one of the most important question is which feature we can extract from the I/O sequence to be used for classification.
