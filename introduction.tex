@@ -19,37 +19,30 @@ the malware applications.
 Even more researchers are using deep learning~\cite{hashemi2018learning} to implement CPU prefetch,
 how to use the deep learning for I/O architecture remains an under-explored research area.
 There are challenges to predict future I/Os for the storage systems.
+Hence, levering advanced machine learning algorithms for I/O prediction and prefetching
+are becoming important for next generate storage systems.
 
-
-First, it is common for thousands of applications running concurrently
+It is common for thousands of applications running concurrently
 on a shared cluster~\cite{stokely2012projecting}.
-Each application executes its own specific mix of jobs.
-The workload features are driven by many short jobs
-that demand quick scheduling decisions.
-This could result in a wide variety of aggregated resource demands and
+Each application generates its own specific pattern of workloads.
+This could result in a wide variety of aggregated
 request arrival patterns with high variation over short time intervals~\cite{reiss2012heterogeneity}.
 Due to the high degree of both heterogeneity and dynamism in the workloads,
 it is difficult to achieve accurate prediction of I/O requests and resource demands.
-Traditional clustering, classification and prediction techniques
-are not suitable for the resource allocation of storage systems~\cite{ray2017high}.
-The first challenge is how to identify the workload in real time from mixed I/O streams,
-predict the dynamic resource allocation and usage in both long and short time periods,
-and make rapid scheduling decision.
-Because thousands of applications are sharing one single storage infrastructure,
-the external I/O are far more complex than the memory access.
+As thousands of applications are sharing one single storage infrastructure,
 I/O sequence from multiple applications are mixed into a single consolidated I/O sequence,
 resulting in many chaos and one time access patterns.
-Because of this, levering advanced machine learning algorithms for I/O prediction and prefetching
-are becoming important for next generate storage systems.
-RNN models are effective in analysing and predicting the sequence datasets.
-Current RNN models assume explicit patterns exists in input sequence.
-It exploit such patterns from the training datasets and deduce inference models.
-However, LBA sequence in block level I/O traces do not simply carry such info.
+Becase the aggregated external I/O requests are far more complex than the memory access.
+traditional clustering, classification and prediction techniques
+are not suitable for the resource allocation of storage systems~\cite{ray2017high}.
+It is challenge to identify the workload in real time from mixed I/O streams.
+For example, recurrent neural network (RNN) is effective in predicting the sequence datasets.
+RNN assumes explicit patterns exists in input sequence.
+It then exploits such patterns from the training datasets and deduce inference models.
+However, because of multiple concurrent I/O workloads, address requests sequence in storage system
+do not simply carry such info.
 
-\improvement{Why not k-means?}
-Second, the address space
-Learning memory access patterns~\cite{hashemi2018learning, peled2018towards}.
-There are multiple challenges of isolating the sub I/O sequences.
+It is challenging to isolate the sub I/O sequences.
 First, the address of the sub I/O sequences may not have simple pattern, e.g. sequential.
 Second, multiple concurrent workloads may mix their request in one I/O stream and result in many one-time-access patterns.
 To solve these challenges, one simple solution is to let the application submit it's identity, such file id or process id, to the storage system.
@@ -57,16 +50,15 @@ However, we may access multiple files or process multiple transactions in one ap
 In this case, passing all the ids to the storage layer will becoming infeasible.
 Because of this, we believe a better way is to let the storage system learn from the workloads.
 
+Second, the address space Learning memory access patterns~\cite{hashemi2018learning, peled2018towards}.
+
 External storage is the last level of storage in the computer architecture.
 We expect that most of the temporal and spacial locality have been captured by the upper level CPU cache or DRAM buffers.
-The I/Os that exist in the external storage will have less locality,
-which cannot be effective dealed by LRU or LFU algorithms.
-The chaotic I/O sequence also challenges advanced machine learning algorithms
-from uncovering the hidden heuristics in the workloads.
-Because of the dymanic concurrency in the worklaods,
-I/O patterns learned from the training datasets
-cannot be used effectively to predict the I/Os.
-As a result, it is critical to uncover sub I/O streams from 
+The I/Os that exist in the external storage will have less locality.
+LRU and LFU cache algorithms can only capture a limited amount (20\%<) of locality in the block level I/Os.
+We have applied RNN models to process the chaotic I/O sequence.
+We find that the patterns learned from the training datasets can not be used effectively to predict the I/Os in the testing datasets.
+As a result, it is critical to discover sub I/O sequence first before applying RNN models.
 The \emph{sub I/O sequence} can represent the addresses that are more likely to be accessed together in a time window.
 We propose to combine a set of different machine learning algorithms to analysis and predict the I/O requests.
 In particular, we first use a customized sequence isolation algorithm to classify the sub I/O sequence based on the I/O history.
@@ -75,7 +67,7 @@ We believe that the machine learning services and libraries will become more con
 A well trained I/O prefetching model can be directly ported to a new system running similar applications.
 We will split this track into the following tasks.
 
-\subsection{Stream Isolation as Sequence Classification}
+\improvement{because of what behavior of I/O workloads}
 
 Sequence isolation is one of the sequence classification problem.
 However, one of the most important question is which feature we can extract from the I/O sequence to be used for classification.
