@@ -17,7 +17,6 @@ Second, the memory space shared by the applications are segmented
 by the operation system.
 However, these two assumptions are not applied to external I/O access classification.
 
-\iffalse
 We propose a fine-grained \emph{temporal-aware sequence classification} algorithm
 to find the sequence relations by using a sliding time window.
 We aim to discover the hidden relation being buried in address domain,
@@ -48,7 +47,6 @@ According to this observation, we split the consolidated I/O sequence into multi
 Thus, the requests within a sub sequence have a significant higher correlation than those across subsets.
 On the contrary, the interlaced trace is segregated based on the division of the address been requested.
 And each trace split is likely to be belonging to one or a few correlated transactions and with reduced noise.
-\fi
 
 \begin{figure}[h]
 \centering
@@ -67,7 +65,6 @@ Comparing to clustering RNN~\cite{hashemi2018learning},
 TAC makes no assumption about the spatial locality of addresses.
 Instead, it scrutinizes the low-level I/O trace based on correlated addresses
 information from their time stamps.
-\iffalse
 Given specific complexity and feasibility,
 we will develop two distinct protocols to implement TAC.
 
@@ -120,7 +117,6 @@ in real-world environment.
 To address the issues of the statistical-based approach, as shown in Figure~\ref{fig:sequence_grouping},
 we propose physical-based approach which procedure is similar but essentially different.
 Instead of binding the addresses with a probability matrix,
-\fi
 As shown in Figure~\ref{fig:sequence_grouping}, we adopt a physical-based approach which
 maps the addresses to points in a $N$-dimensional linear space.
 Upon the arrival of the requests, the points of correlated cells apply attractive force to each other while the uncorrelated ones apply repulsive force.

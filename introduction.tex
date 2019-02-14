@@ -36,61 +36,16 @@ Becase the aggregated external I/O requests are far more complex than the memory
 traditional clustering, classification and prediction techniques
 are not suitable for the resource allocation of storage systems~\cite{ray2017high}.
 It is challenge to identify the workload in real time from mixed I/O streams.
-For example, recurrent neural network (RNN) is effective in predicting the sequence datasets.
-RNN assumes explicit patterns exists in input sequence.
-It then exploits such patterns from the training datasets and deduce inference models.
-However, because of multiple concurrent I/O workloads, address requests sequence in storage system
-do not simply carry such info.
-
-It is challenging to isolate the sub I/O sequences.
-First, the address of the sub I/O sequences may not have simple pattern, e.g. sequential.
-Second, multiple concurrent workloads may mix their request in one I/O stream and result in many one-time-access patterns.
-To solve these challenges, one simple solution is to let the application submit it's identity, such file id or process id, to the storage system.
+For example, deep learning is effective in predicting the sequence datasets.
+It assumes explicit patterns exists in input sequence,
+then exploits such patterns from the training datasets and deduce inference models.
+Because of multiple concurrent I/O workloads,
+address requests sequence in storage system do not simply carry such info.
+To solve these challenges, one solution is to let the application submit it's identity, such file id or process id, to the learning system.
 However, we may access multiple files or process multiple transactions in one application.
-In this case, passing all the ids to the storage layer will becoming infeasible.
-Because of this, we believe a better way is to let the storage system learn from the workloads.
+As a result, passing all the ids to the storage layer will becoming infeasible in real systems.
 
-Second, the address space Learning memory access patterns~\cite{hashemi2018learning, peled2018towards}.
-
-External storage is the last level of storage in the computer architecture.
-We expect that most of the temporal and spacial locality have been captured by the upper level CPU cache or DRAM buffers.
-The I/Os that exist in the external storage will have less locality.
-LRU and LFU cache algorithms can only capture a limited amount (20\%<) of locality in the block level I/Os.
-We have applied RNN models to process the chaotic I/O sequence.
-We find that the patterns learned from the training datasets can not be used effectively to predict the I/Os in the testing datasets.
-As a result, it is critical to discover sub I/O sequence first before applying RNN models.
-The \emph{sub I/O sequence} can represent the addresses that are more likely to be accessed together in a time window.
-We propose to combine a set of different machine learning algorithms to analysis and predict the I/O requests.
-In particular, we first use a customized sequence isolation algorithm to classify the sub I/O sequence based on the I/O history.
-We then use RNN models to exploit the hidden pattern in the sub I/O sequence.
-We believe that the machine learning services and libraries will become more conveniently to be used and widely equipped in the near future.
-A well trained I/O prefetching model can be directly ported to a new system running similar applications.
-We will split this track into the following tasks.
-
-\improvement{because of what behavior of I/O workloads}
-
-Sequence isolation is one of the sequence classification problem.
-However, one of the most important question is which feature we can extract from the I/O sequence to be used for classification.
-To reduce the size of the neural network, Google propose to do k-means classification for the addresses,
-before submitting the I/O sequence to a set of RNN model\cite{hashemi2018learning}.
-However, classification methods used in memory access pattern have strong assumptions and will not work for external I/O.
-First, frequently appeared deltas are too highly skewed in the external I/O.
-Second, because of mix nature of the I/O sequence, the the transit rate between k-means clusters is high for external I/O.
-We propose a more general solution to find the data relationship to those data in last slide time window.
-We aim to discover the hidden relation being buried in address domain,
-and project our trace records to a new multi feature domain by considering time series info.
-The convergence algorithm is being developed to implement a projection protocol
-taking both address and time series info of data into consideration.
-
-Moore's law reaches its end in the CPUs,
-while the ever-popular general-purpose GPUs become default setup
-instead of acting as an accelerator only in the market.
-New domain specific architectures, e.g. TPU, have been developed to speed up the deep learning algorithms.
-Even modern CPUs are augmented with support for SIMD (i.e., single instruction multiple data) instructions.
-This brings up an untapped opportunity: leveraging these big compute resources
-to embrace custom machine learning algorithms to improve the I/O architecture.
-There are several technical challenges in developing such a learned storage system:
-
+Another challenge to apply deep learning in storage system is how to predict on large address space.
 Two most representative machine learning techniques,
 Recurrent Neural Network (RNN in brief) for natural language processing~\cite{graves2013generating,cho2014learning,li2015constructing}
 and Convolutional Neural Network (CNN in brief) for image classification~\cite{lecun1995convolutional,karpathy2014large,kim2014convolutional,abdel2014convolutional,krizhevsky2012imagenet},
@@ -109,3 +64,18 @@ the corresponding neural network must be wide in order to be effectively trained
 and used to make an accurate prediction.
 The I/O data access pattern cannot be the effectively learned
 by existing CNN or RNN models.
+
+Sequence isolation is one of the sequence classification problem.
+However, one of the most important question is which feature we can extract from the I/O sequence to be used for classification.
+To reduce the size of the neural network, Google propose to do k-means classification for the addresses,
+before submitting the I/O sequence to a set of RNN model\cite{hashemi2018learning}.
+However, classification methods used in memory access pattern have strong assumptions and will not work for external I/O.
+First, frequently appeared deltas are too highly skewed in the external I/O.
+Second, because of mix nature of the I/O sequence, the transit rate between k-means clusters is too high for external I/O.
+We will develop a more general solution to find the data relationship to those data in last slide time window.
+We aim to discover the hidden relation being buried in address domain,
+and project our trace records to a new multi feature domain by considering time series info.
+The convergence algorithm is being developed to implement a projection protocol
+taking both address and time series info of data into consideration.
+
+% the address space Learning memory access patterns~\cite{hashemi2018learning, peled2018towards}.
