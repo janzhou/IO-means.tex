@@ -1,3 +1,5 @@
+\todo{use word template}
+
 \section{Introduction}
 
 Because secondary storage is physically farthest away from CPU in modern memory hierarchy
@@ -64,18 +66,19 @@ the corresponding neural network must be wide in order to be effectively trained
 and used to make an accurate prediction.
 The I/O data access pattern cannot be the effectively learned
 by existing CNN or RNN models.
+However, given a I/O task, it usually only accesses a small portion of the entire storage,
+the related I/O addresses are far more less then the whole addresses.
+This motivates us to find a way to isolate a highly correlated sub I/O sequence from the entangled I/O wrokloads.
 
 Sequence isolation is one of the sequence classification problem.
-However, one of the most important question is which feature we can extract from the I/O sequence to be used for classification.
+One of the most important question is which feature we can extract from the I/O sequence to be used for classification.
 To reduce the size of the neural network, Google propose to do k-means classification for the addresses,
 before submitting the I/O sequence to a set of RNN model\cite{hashemi2018learning}.
 However, classification methods used in memory access pattern have strong assumptions and will not work for external I/O.
 First, frequently appeared deltas are too highly skewed in the external I/O.
-Second, because of mix nature of the I/O sequence, the transit rate between k-means clusters is too high for external I/O.
+Second, because of the mix nature of the I/O sequence, the transit rate between k-means clusters is too high for external I/O.
 We will develop a more general solution to find the data relationship to those data in last slide time window.
 We aim to discover the hidden relation being buried in address domain,
 and project our trace records to a new multi feature domain by considering time series info.
 The convergence algorithm is being developed to implement a projection protocol
 taking both address and time series info of data into consideration.
-
-% the address space Learning memory access patterns~\cite{hashemi2018learning, peled2018towards}.

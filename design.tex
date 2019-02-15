@@ -1,7 +1,15 @@
 \section{Design}
 
-
-In order to filter out noisy data and prepare clean access data for training, we will isolate the sub I/O sequences by dealing with the following challenges. First, visiting addresses of the sub I/O sequences may not necessarily follow simple pattern, e.g. sequential. Second, multiple concurrent workloads mix their individual requests in one I/O stream and result in many one-time-access patterns. To handle the challenges, one simple solution is to let application pass along its identity, e.g. file id or process id, to the storage system. However, this is intrusive to the system when we pass kernel level ID information to application level. More importantly, the number of files or transactions being accessed from one application or I/O channel is big. In today's multi-core machines, passing all the ids to the storage layer becomes infeasible. As a result, we will develop an unsupervised stream classification algorithm to learn the hidden heuristics from upcoming I/O sequences.
+In order to filter out noisy data and prepare clean access sequence for training,
+we will isolate the sub I/O sequences by dealing with the following challenges.
+First, visiting addresses of the sub I/O sequences may not necessarily follow simple pattern, e.g. sequential.
+Second, multiple concurrent workloads mix their individual requests in one I/O stream and result in many one-time-access patterns.
+To handle the challenges, one simple solution is to let application pass along its identity,
+e.g. file id or process id, to the storage system.
+However, this is intrusive to the system when we pass kernel level ID information to application level.
+More importantly, the number of files or transactions being accessed from one application or I/O channel is big.
+In today's multi-core machines, passing all the ids to the one layer becomes infeasible.
+As a result, we will develop an unsupervised stream classification algorithm to learn the hidden heuristics from upcoming I/O sequences.
 
 \subsubsection*{Temporal-Aware Sequence Classification}
 
@@ -9,12 +17,12 @@ To classify the I/O sequence,
 one key is to identify appropriate features.
 Researchers from Google apply k-means classification to perform main memory
 footprint analysis, identify the sub I/O sequences and feed them
-to individual RNN models~\cite{hashemi2018learning}.
+to individual RNN models~\cite{hashemi2018learning, peled2018towards}.
 The classification of CPU to memory accesses is well matched with
 the segment classification function of k-means.
-First, the CPU time is multiplexed by the applications using the time-sharing technique.
-Second, the memory space shared by the applications are segmented
-by the operation system.
+First, the CPU time is multiplexed by the applications using the time-sharing technique,
+in a given timesegment we can assume there is only one application accessing the memory.
+Second, the physical memory addresses shared by the applications are segmented by the operation system.
 However, these two assumptions are not applied to external I/O access classification.
 
 We propose a fine-grained \emph{temporal-aware sequence classification} algorithm
@@ -26,7 +34,7 @@ The convergence algorithm is being developed to implement a projection protocol
 taking both address and time series info of data into consideration.
 
 According to our observation in experiments, with the multi-threaded I/O trace,
-the naÃ¯ve application of those methods have merely slight better prediction accuracy than random guess,
+the naive application of those methods have merely slight better prediction accuracy than random guess,
 and even no better than predicting based on simple statistics.
 Nonetheless, they achieve an outstanding performance on single-threaded trace,
 which has low space locality and is a difficult problem for traditional methods.
