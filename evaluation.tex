@@ -1,9 +1,15 @@
-\section{Evaluation}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{fig/emulator.eps}
+\caption{Prototype of Learned Storage based on the NVMe SSD Emulator. (LPN: Logical page number. PPN: Physical page number.)}
+\label{fig:emulator_architecture}
 
-% We employ our open-sourced SSD emulator~\cite{zhou2018cpftl} to implement
-% a prototype system of learned log-structured storage architecture.
-To develop a working system within a reasonable time frame,
-most of existing ML frameworks expose their programming interfaces through
+\end{figure*}\section{Implementation and Evaluation}
+
+We employ our open-sourced SSD emulator~\cite{zhou2018cpftl} to implement
+a prototype system of learned log-structured storage architecture.
+% To develop a working system within a reasonable time frame,
+Most of existing ML frameworks expose their programming interfaces through
 high-level programming languages, such as Python and Java.
 This also allows for ease of tuning of ML algorithms and execution parameters.
 However, current main stream storage systems are developed in C/C++.
@@ -12,8 +18,10 @@ It is an intimidating job of developing ML algorithms at either device driver or
 More importantly, it could be infeasible to conduct sensitivity
 test and tune different ML algorithms at low level architectures.
 
-Our idea is to develop a working system on top of our open-sourced SSD emulator~\cite{zhou2018cpftl},
-which reserves a large physical DRAM space to mimic the external storage devices. Our in-house GPU cluster serves as the host, among which node is configured with 2 Intel Xeon E5, 2.2 GHz 12-core, 128GB and four NVIDA GeForce GTZ Titan XP Graphics card, 12 GB GDDR5X cards. 
+We develop a working system on top of our open-sourced SSD emulator~\cite{zhou2018cpftl},
+which reserves a large physical DRAM space to mimic the external storage devices.
+Our in-house GPU cluster serves as the host, among which node is configured with 2 Intel Xeon E5,
+2.2 GHz 12-core, 128GB DRAM and four NVIDA GeForce GTZ Titan XP Graphics card, 12 GB GDDR5X cards. 
 We offload most of the low-level functionalities
 at either kernel space or device firmware to the user space.
 In the user space, we are free to choose any high-level ML libraries
@@ -25,25 +33,25 @@ Figure~\ref{fig:emulator_architecture} shows the architecture of SSD emulator
 based learned storage prototype.
 At kernel space, SSD emulator reserves large amounts of contiguous memory
 at boot time as the emulated flash memory.
-The NVMe protocol with 65K queues is built to directly handle the logic page number of logic block request (LBA in brief).
-Since current library support at kernel space is very limited,
-we implement Flash Translation Layer (i.e., FTL in brief) at user space.
-For efficiency, we employ a validated version of our in-house correlation-aware FTL
+% The NVMe protocol with 65K queues is built to directly handle the logic page number of logic block request (LBA in brief).
+Since current machine learning support at kernel space is very limited,
+we implement page-level Flash Translation Layer (i.e., FTL in brief) at user space.
+For efficiency, we employ a validated version of our in-house page-level FTL
 protocol to perform address translation between logical page number and physical page number.
-It adopts bloom filter~\cite{gremillion1982designing} algorithm find the correlations among the LBA requests and define the corresponding mappings.
 
-\subsection*{Preliminary Results}
+\subsection{Experimal Results}
 
-To gauge the effectiveness and efficiency of our proposed learned log-structured storage architecture,
-we conducted a comprehensive set of experiments, and collected preliminary results about the cache hit ratio of I/O accesses
-for our working SSD Emulator based prototype.
+To gauge the effectiveness and efficiency of our TAC,
+we conducted a comprehensive set of experiments,
+and collected results about the cache hit ratio of I/O accesses
+from our working SSD Emulator based prototype.
 We implemented the FTL module using different cache and prefetching algorithms.
 Regarding the learned I/O prefetcher module,
-we first implemented our temporal-aware classification (TAC) algorithm to split mixed workloads.
+we first implemented our TAC algorithm to split mixed workloads.
 Afterwards, we employ the LSTM model to predict the future I/Os.
 We used both synthetic and real-world traces and divided traces into training part and testing part.
 
-\begin{figure}[t]
+\begin{figure*}[t]
   \centering
   \begin{subfigure}[b]{0.45\textwidth}
     \includegraphics[width=\textwidth]{fig/fig_step_10_2000.png}
@@ -57,7 +65,7 @@ We used both synthetic and real-world traces and divided traces into training pa
   \end{subfigure}
   \caption{Temporal-aware sequence classification. The addresses are mapped into dots at a 3-dimensional linear space. Addresses from different files are distinguished by color.}
   \label{fig:files}
-\end{figure}
+\end{figure*}
 
 In Figure~\ref{fig:files}, we demonstrate the effectiveness of our TAC algorithm in classifying the entangled I/O workloads.
 We collect the I/O trace under a dedicated multi-thread workload.
@@ -71,18 +79,9 @@ and addresses from different files are effectively separated.
 
 \begin{figure}
 \centering
-\begin{minipage}{.45\textwidth}
-  \centering
-  \includegraphics[width=0.8\textwidth]{fig/cache.eps}
-  \caption{Average cache hit ratio.}
-  \label{fig:cache}
-\end{minipage}
-\begin{minipage}{.45\textwidth}
-  \centering
-  \includegraphics[width=0.8\textwidth]{fig/log2.png}
-  \caption{Predicting accuracy of Learned Log.}
-  \label{fig:learned_log}
-\end{minipage}%
+\includegraphics[width=0.45\textwidth]{fig/cache.eps}
+\caption{Average cache hit ratio.}
+\label{fig:cache}
 \end{figure}
 
 By using the TAC, we split the workloads into multiple clean I/O streams.
@@ -102,12 +101,3 @@ LRUx1 use LRU cache and reserves the same amount of cache space as the RNNx1.
 LRUx10 use LRU cache and reserves the same amount of cache space as the RNNx10.
 Given new learned I/O prefetcher,
 we improve the cache hit ratio by 5-6 times for modern storage architecture.
-
-Figure~\ref{fig:learned_log} shows the prediction accuracy of our learned log.
-Given enough training data, our learned log can achieve up to $99\%$ accuracy
-in predicting the last occurring position of a key in the log.
-Comparing to the bloom filter, which achieves a very close level of accuracy, learned log save 70\% of memory.
-
-% In summary, our preliminary work showed very promising results.
-% Equipped with new learned log-structured storage module, we save 70\% of memory space?
-% In terms of log management related in-memory data structures without compromising performance.

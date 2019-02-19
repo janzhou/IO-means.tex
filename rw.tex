@@ -8,7 +8,28 @@ As those issues has been recently addressed by collecting suitable datasets~\cit
 and introducing specialized computing devices~\cite{Krizhevsky2012, Jouppi2017},
 it has achieved breakthrough performance on a variety of research problems~\cite{Krizhevsky2012, Mnih2015, Silver2016, Bahdanau2014}.
 
-\subsection{Recurrent neural network}
+\subsection{Traditional I/O Prefetch}
+
+Because secondary storage is physically farthest away from CPU in modern memory hierarchy
+and shared by many concurrent processes,
+I/O accesses bear less locality and is more complexity than that of memory workloads~\cite{yang1992novel, wang1995cat}.
+Much research has been done to employ prefetch as one weapon to bridge the speed gap between memory and storage.
+However, storage side prefetching mainly optimized for relatively simple I/O patterns.
+DiskSeen~\cite{ding2007diskseen} adopts sequential prefetching for disk I/O.
+Competitive prefetching~\cite{li2007competitive} optimizes the sequential prefetching for multiple concurrent I/O stream.
+In order to optimize the workloads that are not sequential,
+Chen et. al.~\cite{chen2008hiding} perform pre-execution and keep a record of the request for prefetching.
+Signature-based parallel prefetching~\cite{byna2008parallel} calculates the signature of request sequence to match future request sequence. %signature-based prefetching.
+Lots of researchers develop solutions to learn patterns for
+specific workloads that are characterized by stable and repeatable patterns.
+For example, Anwar et. al.~\cite{anwar2018improving} seek to perform
+prefetching specifically for docker applications. % simpler patterns
+Xu et. al.~\cite{xu2017malware} learn access patterns to detect
+the malware applications.
+Even more researchers are using deep learning~\cite{hashemi2018learning, peled2018towards} to implement CPU prefetch,
+how to use the deep learning for I/O architecture remains an under-explored research area.
+
+\subsection{Recurrent Neural Network}
 
 Given a sequence of inputs $(x_1, ..., x_T)$, a Recurrent Neural Network (RNN)~\cite{rumelhart1986learning, werbos1990backpropagation} computes a sequence of outputs $(y_1, ..., y_T)$ by iterating the Equation~\ref{eq:rnn1} and \ref{eq:rnn2}:
 
@@ -22,59 +43,8 @@ h_t = sigm(W^{hx}x_t + W^{hh}h_{t-1})
 y_t = W^{yh}h_t
 \end{equation}
 
-The RNN can easily sequences to sequences whenever the alignment between the inputs the outputs is known ahead of time.
-It can be applyied to I/O sequence data to predict the future requests.
-However, as the address space of an I/O stream is extremely sparse,
-training a wide RNN for I/O prediction is time consuming and will not get accurate output.
+The RNN can be applyied to predict the future data requests~\cite{hashemi2018learning, peled2018towards}.
+However, as the address space of an external I/O stream is extremely sparse,
+the I/O prediction would need a wide neural network, which is hard to train and will not produce accurate output.
 Also, the RNN requires explicity patterns exists in the datasets.
-However, interference exists between multiple concurrent I/O stream.
-
-the address space Learning memory access patterns~\cite{hashemi2018learning, peled2018towards}.
-
-Estimate application (Malware) by learning memory access patterns~\cite{xu2017malware}.
-
-Memory Learning framework~\cite{deng2017memory} and Intel Optane~\cite{elie2018intel}.
-
-The case for learned index~\cite{kraska2018case}.
-
-Prefetch for docker~\cite{anwar2018improving}.
-
-Bridge Application Gap by FStream~\cite{rho2018fstream}
-
-
-\subsection{I/O prefetch as sequence prediction problem}
-
-Methods used in Memory Access Pattern Learning may not work.
-
-\subsubsection{Analysis results for $\delta$}
-
-Frequently Appeared Deltas: Highly skewed
-
-\subsubsection{Analysis results for $classification$}
-
-Clustering: High transit rate for External I/O (Using K-means)
-
-One or more application doing external I/O concurrently.
-
-\subsection{Recurrent Sequence to Sequence Learning}
-
-\subsubsection{Embedding LSTM}
-
-\subsubsection{Clustering LSTM}
-
-Address clustering.
-
-\subsubsection{Multi-layer LSTM}
-
-We first predict the partition (RNN Layer 1) or maybe stream clustering rather than address clustering.
-
-We then predict with in the partition (RNN Layer 2).
-
-\subsubsection{Disjoint Classification}
-
-Convert 1 dimensional sequence to 2 dimensional access jumps
-
-Class disjoint space (jumps) using 2 dimensional k-means
-
-RNN in each class.
-
+However, interference between multiple concurrent I/O stream would hide those patterns.

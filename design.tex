@@ -11,12 +11,12 @@ More importantly, the number of files or transactions being accessed from one ap
 In today's multi-core machines, passing all the ids to the one layer becomes infeasible.
 As a result, we will develop an unsupervised stream classification algorithm to learn the hidden heuristics from upcoming I/O sequences.
 
-\subsubsection*{Temporal-Aware Sequence Classification}
+\subsection{Temporal-Aware Sequence Classification}
 
 To classify the I/O sequence,
 one key is to identify appropriate features.
-Researchers from Google apply k-means classification to perform main memory
-footprint analysis, identify the sub I/O sequences and feed them
+Researchers from Google apply k-means classification to addresses
+to category the sub I/O sequences and feed them
 to individual RNN models~\cite{hashemi2018learning, peled2018towards}.
 The classification of CPU to memory accesses is well matched with
 the segment classification function of k-means.
@@ -24,20 +24,19 @@ First, the CPU time is multiplexed by the applications using the time-sharing te
 in a given timesegment we can assume there is only one application accessing the memory.
 Second, the physical memory addresses shared by the applications are segmented by the operation system.
 However, these two assumptions are not applied to external I/O access classification.
-
-We propose a fine-grained \emph{temporal-aware sequence classification} algorithm
-to find the sequence relations by using a sliding time window.
+To solve this problem, we develop a fine-grained \emph{Temporal-Aware Sequence Classification (TAC)} algorithm
+to find the sequence classifications by using a sliding time window.
 We aim to discover the hidden relation being buried in address domain,
 and project our trace records to a new multi feature domain
 by considering the record correlation hidden in the time series.
 The convergence algorithm is being developed to implement a projection protocol
 taking both address and time series info of data into consideration.
 
-According to our observation in experiments, with the multi-threaded I/O trace,
-the naive application of those methods have merely slight better prediction accuracy than random guess,
-and even no better than predicting based on simple statistics.
-Nonetheless, they achieve an outstanding performance on single-threaded trace,
-which has low space locality and is a difficult problem for traditional methods.
+% According to our observation in experiments, with the multi-threaded I/O trace,
+% the naive application of those methods have merely slight better prediction accuracy than random guess,
+% and even no better than predicting based on simple statistics.
+% Nonetheless, they achieve an outstanding performance on single-threaded trace,
+% which has low space locality and is a difficult problem for traditional methods.
 
 Due to the specific internal data structures of various kinds of applications,
 there exists repeated access patterns in the trace.
@@ -56,15 +55,8 @@ Thus, the requests within a sub sequence have a significant higher correlation t
 On the contrary, the interlaced trace is segregated based on the division of the address been requested.
 And each trace split is likely to be belonging to one or a few correlated transactions and with reduced noise.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.9\linewidth]{fig/sequence_grouping.eps}
-\caption{Temporal-aware Sequence Classification.}
-\label{fig:sequence_grouping}
-\end{figure}
-
-We propose \emph{Temporal-Aware Sequence Classification (TAC)},
-an unsupervised learning-based approach to solve the problem.
+Our \emph{Temporal-Aware Sequence Classification (TAC)}
+is an unsupervised learning-based approach to solve the problem.
 The idea is to split the address sequence
 and disentangle the multi-thread effects in I/O request trace
 according to their temporal correlation.
@@ -76,7 +68,8 @@ information from their time stamps.
 Given specific complexity and feasibility,
 we will develop two distinct protocols to implement TAC.
 
-\emph{Probabilistic-based Approach:}
+\subsection{Statistical-based I/O Classification}
+
 To deal with $M$ addresses and $N$ potential groups, we maintain a $M\times N$ matrix
 as the probability table.
 Each entry in the table represents the probability that specific address is
@@ -121,11 +114,19 @@ Third, the complexities of both time and space have a linear relation
 to the number of groups, which tell it is unrealistic to implement
 in real-world environment.
 
-\emph{Physical-based Approach:}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{fig/sequence_grouping.eps}
+\caption{Temporal-aware Sequence Classification.}
+\label{fig:sequence_grouping}
+\end{figure}
+
+\subsection{Graph-based I/O Classification}
+
 To address the issues of the statistical-based approach, as shown in Figure~\ref{fig:sequence_grouping},
-we propose physical-based approach which procedure is similar but essentially different.
+we propose graph-based approach which procedure is similar but essentially different.
 Instead of binding the addresses with a probability matrix,
-As shown in Figure~\ref{fig:sequence_grouping}, we adopt a physical-based approach which
+As shown in Figure~\ref{fig:sequence_grouping}, we adopt a graph-based approach which
 maps the addresses to points in a $N$-dimensional linear space.
 Upon the arrival of the requests, the points of correlated cells apply attractive force to each other while the uncorrelated ones apply repulsive force.
 As the points moving in the space, they will gradually form clusters while those clusters will be separated by repulsion.
@@ -154,7 +155,7 @@ in which $\epsilon$ represents the frequency factor.
 % And the complete procedure of TAC is presented in Algorithm~\ref{tacphysical}.
 
 In real-world scenario, the number of concurrent threads is varying over time.
-The physical-based approach maps the addresses based on their correlation rather than setting hard boundaries on division,
+The graph-based approach maps the addresses based on their correlation rather than setting hard boundaries on division,
 which makes it possess the potential to solve this issue.
 % We leave this exploration to future work.
 
